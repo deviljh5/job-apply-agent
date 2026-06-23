@@ -9,5 +9,10 @@ export default async function HomePage() {
     redirect("/dashboard");
   }
 
+  // In demo mode (no Google OAuth configured), go directly to jobs page
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    redirect("/jobs");
+  }
+
   redirect("/login");
 }
