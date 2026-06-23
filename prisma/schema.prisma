@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  image         String?
+  resumes       Resume[]
+  preferences   JobPreference?
+  applications  Application[]
+  emailSyncs    EmailSync[]
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime       @default(now())
+}
+
+model Resume {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originalUrl     String
+  parsedData      String           // JSON string (SQLite workaround)
+  tailoredResumes TailoredResume[]
+  createdAt       DateTime         @default(now())
+}
+
+model TailoredResume {
+  id          String   @id @default(cuid())
+  resumeId    String
+  resume      Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  tailoredUrl String
+  coverLetter String?
+  atsScore    Float?
+  createdAt   DateTime @default(now())
+}
+
+model JobPreference {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRoles String   // JSON array string
+  seniority   String?
+  salaryMin   Int?
+  salaryMax   Int?
+  currency    String   @default("USD")
+  location    String   // JSON array string
+  remoteOnly  Boolean  @default(false)
+  jobTypes    String   // JSON array string
+  industries  String   // JSON array string
+}
+
+model Job {
+  id             String            @id @default(cuid())
+  source         String
+  externalId     String
+  title          String
+  company        String
+  companyLogo    String?
+  location       String
+  remoteType     String?
+  salary         String?
+  salaryMin      Int?
+  salaryMax      Int?
+  description    String
+  requirements   String            // JSON array string
+  skills         String            // JSON array string
+  url            String
+  applicationUrl String?
+  jobType        String
+  postedAt       DateTime
+  expiresAt      DateTime?
+  applications   Application[]
+  tailoredResumes TailoredResume[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([source, externalId])
+  @@index([title, company])
+}
+
+model Application {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId            String
+  job              Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resumeId         String?
+  tailoredResumeId String?
+  status           String   @default("PENDING") // ApplicationStatus as string
+  submittedAt      DateTime?
+  submittedVia     String?
+  emails           ApplicationEmail[]
+  notes            String?
+  followUpDate     DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model ApplicationEmail {
+  id             String   @id @default(cuid())
+  applicationId  String
+  application    Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  gmailId        String
+  subject        String
+  sender         String
+  receivedAt     DateTime
+  category       String   // EmailCategory as string
+  summary        String?
+  actionRequired Boolean  @default(false)
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+model EmailSync {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String
+  refreshToken String
+  lastSyncAt   DateTime?
+  syncEnabled  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}

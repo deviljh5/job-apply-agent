@@ -1,0 +1,15 @@
+{
+  "name": "jobapply-agent-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for JobApply Agent",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "build:inline": "node build.js"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.200",
+    "@types/node": "^20.19.43",
+    "typescript": "^5.9.3"
+  }
+}

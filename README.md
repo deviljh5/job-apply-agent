@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Job Apply Agent
 
-## Getting Started
+An AI-powered job application agent inspired by fastapply.co. Features resume upload & AI parsing, job matching, AI-tailored resumes, Chrome extension auto-fill, and Gmail email tracking.
 
-First, run the development server:
+**🚀 Zero-cost deployment supported — Demo mode works without OpenAI API key.**
+
+## Features
+
+- **Resume Management** - Upload PDF, AI parsing extracts structured data (or demo mode with templates)
+- **Job Discovery** - Aggregate jobs from multiple sources with smart matching
+- **AI Resume Tailoring** - Generate tailored resumes & cover letters per job (AI-powered or template-based)
+- **Chrome Extension** - Auto-fill job applications on Greenhouse, Lever, Workday, etc.
+- **Application Tracking** - Track status, email sync, interview pipeline
+- **Gmail Integration** - Auto-read application emails, classify & update status
+
+## Tech Stack
+
+- Next.js 16 + TypeScript + Tailwind CSS + shadcn/ui
+- Prisma + SQLite (dev) / PostgreSQL (prod)
+- NextAuth.js + Google OAuth
+- OpenAI GPT-4o-mini for AI features (optional — demo mode available)
+- Google APIs for Gmail sync (optional)
+- Chrome Extension (Manifest V3)
+
+## Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Setup environment
+cp .env.example .env.local
+# Edit .env.local with your API keys (or leave defaults for demo mode)
+
+# Initialize database
+npx prisma migrate dev
+
+# Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Zero-Cost Deployment (Recommended)
 
-## Learn More
+Deploy completely for free using:
+- **Vercel** (Hobby plan — free)
+- **Neon** (PostgreSQL — free tier)
+- **GitHub** (public repo — free)
+- **Demo mode** (no OpenAI API key needed — free)
 
-To learn more about Next.js, take a look at the following resources:
+**Total cost: $0/month**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the complete step-by-step guide.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Quick Deploy to Vercel
 
-## Deploy on Vercel
+1. Push to GitHub
+2. Import to [Vercel](https://vercel.com/new)
+3. Configure environment variables (use `.env.example` as reference)
+4. Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Note:** Leave `OPENAI_API_KEY` as default to enable **Demo mode** (zero AI costs). All features work with template-based responses.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Demo Mode vs AI Mode
+
+| Feature | Demo Mode (Free) | AI Mode (Paid) |
+|---------|-----------------|----------------|
+| Resume Parsing | Template data | AI-extracted from PDF |
+| Resume Tailoring | Keyword-based templates | AI-rewritten content |
+| Cover Letter | Template generation | AI-personalized letter |
+| Email Classification | Keyword matching | AI semantic analysis |
+| ATS Score | Keyword matching | AI-optimized scoring |
+
+**Switch to AI mode:** Add `OPENAI_API_KEY` to environment variables and redeploy.
+
+## Project Structure
+
+```
+job-apply-agent/
+├── src/
+│   ├── app/              # Next.js app routes (pages + API)
+│   ├── components/       # UI components (shadcn/ui)
+│   └── lib/              # Utilities & services
+├── prisma/               # Database schema
+├── chrome-extension/     # Browser extension (load in dev mode)
+├── DEPLOYMENT.md         # Complete deployment guide
+└── .env.example          # Environment variables template
+```
+
+## Chrome Extension
+
+1. Open Chrome → `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked" → Select `chrome-extension/dist/`
+4. Extension auto-detects job pages and offers auto-fill
+
+Supported platforms: Greenhouse, Lever, Workday, LinkedIn, Indeed, Ashby, Glassdoor, ZipRecruiter, AngelList
+
+## Environment Variables
+
+```bash
+# Required
+DATABASE_URL="postgresql://..."      # Or SQLite for local dev
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret"
+GOOGLE_CLIENT_ID="..."               # For OAuth login
+GOOGLE_CLIENT_SECRET="..."
+
+# Optional (leave default for demo mode)
+OPENAI_API_KEY="your-openai-api-key" # For AI features
+GMAIL_CLIENT_ID="..."                # For email sync
+GMAIL_CLIENT_SECRET="..."
+ADZUNA_APP_ID="..."                  # For real job aggregation
+```
+
+See `.env.example` for full reference.
+
+## License
+
+MIT
+
+---
+
+**Built with ❤️ for job seekers.**
