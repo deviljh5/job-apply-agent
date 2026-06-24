@@ -3,16 +3,16 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-  if (session) {
-    redirect("/dashboard");
+    if (session) {
+      redirect("/dashboard");
+    }
+  } catch (e) {
+    // If session check fails (e.g. DB not ready), continue to jobs page
   }
 
-  // In demo mode (no Google OAuth configured), go directly to jobs page
-  if (!process.env.GOOGLE_CLIENT_ID) {
-    redirect("/jobs");
-  }
-
-  redirect("/login");
+  // No session or demo mode: go directly to jobs page
+  redirect("/jobs");
 }
