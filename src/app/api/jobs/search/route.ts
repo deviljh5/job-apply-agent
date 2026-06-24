@@ -34,8 +34,12 @@ export async function GET(request: Request) {
       limit,
     });
 
-    // Save jobs to database for persistence
-    await jobAggregationService.saveJobsToDatabase(jobs);
+    // Save jobs to database for persistence (non-blocking, ignore errors in demo mode)
+    try {
+      await jobAggregationService.saveJobsToDatabase(jobs);
+    } catch (dbError) {
+      console.error("Failed to save jobs to database (non-fatal):", dbError);
+    }
 
     return NextResponse.json({
       success: true,
