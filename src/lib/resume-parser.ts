@@ -1,8 +1,13 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAI(): OpenAI | null {
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "your-openai-api-key") {
+    return null;
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 export interface ParsedResume {
   name: string;
@@ -37,10 +42,15 @@ export async function parseResume(_buffer: Buffer): Promise<ParsedResume> {
   }
 
   try {
+    const client = getOpenAI();
+    if (!client) {
+      return getMockParsedData();
+    }
+
     // In production, extract text from PDF buffer here
     const resumeText = "Extracted PDF text would go here...";
 
-    const response = await openai.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {

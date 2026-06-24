@@ -2,9 +2,14 @@ import OpenAI from "openai";
 import { prisma } from "@/lib/prisma";
 import { AggregatedJob } from "./job-aggregation";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAI(): OpenAI | null {
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "your-openai-api-key") {
+    return null;
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 const isDemoMode = !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "your-openai-api-key";
 
@@ -137,7 +142,8 @@ Return ONLY a JSON object with this exact structure:
 }
 `;
 
-    const response = await openai.chat.completions.create({
+    const client = getOpenAI()!;
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
@@ -218,7 +224,8 @@ ${JSON.stringify(resumeData, null, 2)}
 Return the cover letter as plain text (no JSON, no markdown formatting).
 `;
 
-    const response = await openai.chat.completions.create({
+    const client = getOpenAI()!;
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {

@@ -30,15 +30,22 @@ export interface ClassifiedEmail {
 }
 
 export class EmailClassifier {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
   private isDemoMode: boolean;
 
   constructor() {
     const apiKey = process.env.OPENAI_API_KEY;
     this.isDemoMode = !apiKey || apiKey === "your-openai-api-key";
-    this.openai = new OpenAI({
-      apiKey: apiKey || "dummy-key",
-    });
+  }
+
+  private getOpenAI(): OpenAI | null {
+    if (this.isDemoMode) return null;
+    if (!this.openai) {
+      this.openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY!,
+      });
+    }
+    return this.openai;
   }
 
   async classifyEmail(
@@ -80,7 +87,8 @@ Email to classify:
 ${fullText.substring(0, 4000)}`;
 
     try {
-      const response = await this.openai.chat.completions.create({
+      const client = this.getOpenAI()!;
+      const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
